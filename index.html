@@ -10,68 +10,93 @@
         :root { 
             --blue-main: #0EA5E9;
             --blue-dark: #0369a1;
-            --orange-main: #f97316;
-            --card-width: 120px;
+            --orange-main: #EA580C; /* Matching categorization game orange */
+            --card-width: 110px;
+            --card-font-size: 1.1rem;
         }
-        body { font-family: "PingFang HK", "Heiti TC", sans-serif; overflow-x: hidden; user-select: none; background: url('images/park.jpg') center/cover fixed; }
+        body { font-family: "PingFang HK", "Heiti TC", sans-serif; overflow-x: hidden; user-select: none; transition: background 0.3s; }
         
+        /* Background classes */
+        .bg-park { background: url('images/park.jpg') center/cover fixed; }
+        .bg-room { background: url('images/room.jpg') center/cover fixed; }
+        .bg-road { background: url('images/road.jpg') center/cover fixed; }
+        .bg-game { background: url('images/game.jpg') center/cover fixed; }
+        .bg-white { background-color: #ffffff; }
+
         /* 3D Button Styles */
         .btn-blue { background-color: var(--blue-main); border-bottom: 5px solid var(--blue-dark); color: white; }
-        .btn-orange { background-color: var(--orange-main); border-bottom: 5px solid #c2410c; color: white; }
-        .btn-emerald { background-color: #10b981; border-bottom: 5px solid #059669; color: white; }
+        .btn-orange { background-color: var(--orange-main); border-bottom: 5px solid #9a3412; color: white; }
+        .btn-emerald { background-color: #059669; border-bottom: 5px solid #064e3b; color: white; }
+        .btn-gray { background-color: #6b7280; border-bottom: 5px solid #374151; color: white; }
         .btn-active:active { transform: translateY(2px); border-bottom-width: 2px; }
 
         /* Vocab Card Logic */
         .vocab-card { width: var(--card-width); flex-shrink: 0; background: white; padding: 10px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; transition: 0.2s; }
+        .vocab-card p { font-size: var(--card-font-size); }
         .selected-card { outline: 6px solid #22c55e; box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
         
-        /* The Preparation Board (Single Box) */
         .prep-box { background: white; border: 6px solid var(--blue-main); border-radius: 30px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
         .prep-header { background: var(--blue-main); color: white; padding: 20px; font-size: 2.5rem; font-weight: 900; text-align: center; }
 
-        /* Timer Aesthetics */
-        .timer-container { width: 100%; max-width: 800px; position: relative; padding: 20px 0; }
+        /* Timer UI */
+        .timer-container { width: 100%; max-width: 800px; position: relative; padding: 40px 0; margin-top: 20px; }
         .timer-track { 
-            height: 50px; width: 100%; border-radius: 999px; position: relative; 
-            border: 5px solid white; background: rgba(0,0,0,0.1); overflow: visible;
+            height: 45px; width: 100%; border-radius: 999px; position: relative; 
+            border: 6px solid white; background: rgba(255,255,255,0.3); box-shadow: inset 0 4px 6px rgba(0,0,0,0.1);
         }
         .timer-fill { height: 100%; border-radius: 999px; transition: width 0.1s linear; }
-        .bomb-gradient { background: linear-gradient(to left, #f87171, #facc15); }
+        .bomb-gradient { background: linear-gradient(to right, #f87171, #facc15); }
         .car-gradient { background: linear-gradient(to right, #60a5fa, #2563eb); }
         
-        .mover-emoji { position: absolute; top: -25px; font-size: 70px; z-index: 30; transition: all 0.1s linear; }
-        .endpoint-emoji { position: absolute; top: -15px; font-size: 55px; z-index: 10; }
+        /* Mover precisely tracks the tip */
+        .mover-emoji { position: absolute; top: -35px; font-size: 80px; z-index: 30; transform: translateX(-50%); transition: left 0.1s linear, right 0.1s linear; }
+        .endpoint-emoji { position: absolute; top: -25px; font-size: 65px; z-index: 10; transform: translateX(-50%); }
 
-        /* Massive Game Button */
-        .big-star-btn {
-            width: 220px; height: 220px; border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #fbbf24, #d97706);
-            border: 10px solid #92400e; 
+        /* Enhanced Counting Button */
+        .star-button {
+            width: 240px; height: 240px; border-radius: 50%;
+            background: #FFD700; /* Bright Gold */
+            border: 12px solid #B8860B;
             display: flex; align-items: center; justify-content: center;
-            font-size: 100px; color: white;
-            box-shadow: 0 15px 0 #78350f, 0 20px 40px rgba(0,0,0,0.3);
+            font-size: 110px; color: #8B4513;
+            box-shadow: 0 18px 0 #926f00, 0 25px 45px rgba(0,0,0,0.4);
             cursor: pointer; transition: all 0.1s;
+            text-shadow: 2px 2px 0 rgba(255,255,255,0.5);
         }
-        .big-star-btn:active { transform: translateY(10px); box-shadow: 0 5px 0 #78350f, 0 10px 20px rgba(0,0,0,0.2); }
+        .star-button:active { transform: translateY(12px); box-shadow: 0 6px 0 #926f00, 0 12px 20px rgba(0,0,0,0.2); }
 
-        /* Summary Grayscale Logic */
-        .summary-card { filter: grayscale(100%); opacity: 0.5; cursor: pointer; border: 4px solid transparent; }
+        .summary-card { filter: grayscale(100%); opacity: 0.6; cursor: pointer; border: 4px solid transparent; }
         .summary-card.scored { filter: grayscale(0%); opacity: 1; border-color: #22c55e; background: #f0fdf4; transform: scale(1.05); }
 
-        .hide-text p { display: none; }
+        .hide-text p { display: none !important; }
+        .hide-text .vocab-card { height: var(--card-width); justify-content: center; }
     </style>
 </head>
 <body class="bg-park">
 
-    <nav class="fixed top-0 left-0 w-full h-14 bg-white/90 shadow-md z-[100] flex items-center justify-between px-6">
-        <button onclick="location.reload()" class="px-6 py-1 rounded-xl font-bold btn-blue btn-active text-lg">擴展性命名</button>
-        <div class="flex items-center gap-6 font-bold text-gray-700">
-            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="textToggle" checked onchange="updateView()"> 顯示文字</label>
-            <button onclick="exportResult()" class="px-4 py-1 bg-emerald-600 text-white rounded-md btn-active">匯出 💾</button>
+    <nav class="fixed top-0 left-0 w-full h-14 bg-white shadow-sm z-[100] flex items-center justify-between px-4">
+        <button onclick="location.reload()" class="px-5 py-1 rounded-xl font-bold btn-blue btn-active">擴展性命名</button>
+        
+        <div class="flex items-center gap-4 text-sm font-bold text-gray-700">
+            <div class="flex items-center gap-2">
+                <span>大小</span>
+                <input type="range" id="sizeSlider" min="80" max="220" value="110" oninput="handleSizeChange(this.value)">
+            </div>
+            <label class="flex items-center gap-1 cursor-pointer">
+                <input type="checkbox" id="textToggle" checked onchange="updateView()"> 顯示文字
+            </label>
+            <select onchange="document.body.className = 'bg-' + this.value" class="border rounded-md px-2 py-1 bg-gray-50">
+                <option value="park">草地</option>
+                <option value="room">房間</option>
+                <option value="road">馬路</option>
+                <option value="game">遊戲</option>
+                <option value="white">純白</option>
+            </select>
+            <button onclick="exportResult()" class="px-4 py-1 bg-emerald-600 text-white rounded-md font-bold btn-active shadow-md">匯出 💾</button>
         </div>
     </nav>
 
-    <main id="app" class="mt-20 p-4"></main>
+    <main id="app" class="mt-16 p-4"></main>
 
     <script>
         const bulkData = `
@@ -331,7 +356,8 @@
         數字	7	數字/7.png
         數字	8	數字/8.png
         數字	9	數字/9.png
-        數字	10	數字/10.png`;
+        數字	10	數字/10.png
+        `;
         const vocabList = bulkData.trim().split('\n').map(l => {
             const [cat, name, path] = l.trim().split(/\s+/);
             return { cat, name, path: `images/${path}`, id: 'v-'+Math.random().toString(36).substr(2,9) };
@@ -342,7 +368,7 @@
             view: 'SELECT',
             selectedItems: [],
             customCategory: "",
-            timerType: 'bomb', // bomb or car
+            timerType: 'bomb',
             duration: 15,
             timeLeft: 15,
             isPaused: false,
@@ -355,7 +381,7 @@
         function updateView() {
             const app = document.getElementById('app');
             const hideText = !document.getElementById('textToggle').checked;
-            app.className = "mt-20 p-4 " + (hideText ? "hide-text" : "");
+            app.className = "mt-16 p-4 " + (hideText ? "hide-text" : "");
 
             if (state.view === 'SELECT') renderSelection(app);
             else if (state.view === 'PREP') renderPrep(app);
@@ -367,29 +393,55 @@
         function renderSelection(app) {
             app.innerHTML = `
                 <div class="max-w-6xl mx-auto">
-                    <div class="bg-white/80 p-6 rounded-3xl mb-8 shadow-lg flex flex-wrap gap-4 items-center justify-between border border-white">
-                        <input type="text" id="catInput" placeholder="輸入題目 (例如：紅色的水果)" class="flex-1 p-4 border-2 rounded-2xl text-xl font-bold" value="${state.customCategory}" onchange="state.customCategory=this.value">
-                        <button onclick="goPrep()" class="px-12 py-4 btn-orange btn-active rounded-full font-black text-2xl">下一步 (${state.selectedItems.length})</button>
+                    <div class="sticky top-14 z-40 bg-white/90 p-4 rounded-2xl mb-6 shadow-sm flex flex-col gap-4 border border-gray-200">
+                        <div class="flex gap-4 items-center">
+                            <span class="font-bold text-gray-600 shrink-0 text-lg">題目：</span>
+                            <input type="text" id="catInput" placeholder="輸入題目 (例如：紅色的水果)" class="flex-1 p-3 border-2 rounded-xl text-xl font-bold" value="${state.customCategory}" onchange="state.customCategory=this.value">
+                            <button onclick="goPrep()" class="px-10 py-3 btn-orange btn-active rounded-full font-black text-xl">下一步 (${state.selectedItems.length})</button>
+                        </div>
+                        <div class="flex gap-4">
+                            <select onchange="document.getElementById('section-'+this.value).scrollIntoView({behavior: 'smooth'})" class="p-2 border-2 border-gray-200 rounded-xl font-bold bg-white">
+                                <option>跳至類別...</option>
+                                ${categories.map(c => `<option value="${c}">${c}</option>`).join('')}
+                            </select>
+                            <input type="text" id="searchInput" placeholder="🔍 搜尋詞彙..." class="p-2 border-2 border-gray-200 rounded-xl w-64" oninput="filterGrid(this.value)">
+                        </div>
                     </div>
-                    <div id="grid-root"></div>
+                    <div id="selection-grid-container"></div>
                 </div>
             `;
-            let gridHtml = '';
-            categories.forEach(cat => {
-                gridHtml += `
-                <div class="mb-10">
-                    <div class="bg-sky-600 text-white px-8 py-3 rounded-t-3xl text-2xl font-black">${cat}</div>
-                    <div class="bg-white/40 p-6 rounded-b-3xl flex flex-wrap gap-6 border-x border-b border-sky-100">
-                        ${vocabList.filter(v => v.cat === cat).map(v => `
-                            <div onclick="toggleItem('${v.id}')" class="vocab-card cursor-pointer ${state.selectedItems.some(s=>s.id===v.id)?'selected-card':''}">
-                                <img src="${v.path}" class="w-full h-auto rounded-lg">
-                                <p class="mt-2 font-bold">${v.name}</p>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>`;
-            });
-            document.getElementById('grid-root').innerHTML = gridHtml;
+            filterGrid('');
+        }
+
+        function filterGrid(term) {
+            const container = document.getElementById('selection-grid-container');
+            if (!container) return;
+            let html = '';
+            
+            const filteredVocab = term.trim() ? vocabList.filter(v => v.name.includes(term)) : null;
+
+            if (filteredVocab) {
+                html = `<div class="flex flex-wrap gap-4 p-4 bg-white/30 rounded-2xl">${filteredVocab.map(v => renderCardHTML(v)).join('')}</div>`;
+            } else {
+                categories.forEach(cat => {
+                    html += `
+                    <div id="section-${cat}" class="mb-8">
+                        <div class="bg-orange-600 text-white px-6 py-2 rounded-t-xl flex justify-between items-center shadow-md">
+                            <span class="text-xl font-black">${cat}</span>
+                            <button onclick="selectAllInCat('${cat}')" class="text-sm bg-white/20 px-4 py-1 rounded-full font-bold hover:bg-white/40">全選</button>
+                        </div>
+                        <div class="bg-white/40 p-5 rounded-b-xl flex flex-wrap gap-4 border-x border-b border-orange-200">
+                            ${vocabList.filter(v => v.cat === cat).map(v => renderCardHTML(v)).join('')}
+                        </div>
+                    </div>`;
+                });
+            }
+            container.innerHTML = html;
+        }
+
+        function renderCardHTML(v) {
+            const active = state.selectedItems.some(i => i.id === v.id) ? 'selected-card' : '';
+            return `<div onclick="toggleItem('${v.id}')" class="vocab-card cursor-pointer ${active}"><img src="${v.path}" class="w-full pointer-events-none"><p>${v.name}</p></div>`;
         }
 
         function renderPrep(app) {
@@ -411,19 +463,19 @@
 
         function renderTimerSetup(app) {
             app.innerHTML = `
-                <div class="flex flex-col items-center py-10 gap-12">
-                    <h2 class="text-5xl font-black text-sky-900">選擇計時器模式</h2>
+                <div class="flex flex-col items-center py-10 gap-10">
+                    <h2 class="text-5xl font-black text-blue-900">選擇計時器模式</h2>
                     <div class="flex gap-12">
-                        <div onclick="state.timerType='bomb';updateView()" class="w-56 h-56 rounded-[40px] cursor-pointer border-8 ${state.timerType==='bomb'?'border-orange-500 bg-orange-50':'border-white bg-white/50'} flex flex-col items-center justify-center transition-all">
-                            <span class="text-9xl">💣</span><span class="text-2xl font-black mt-2 text-orange-700">炸彈模式</span>
+                        <div onclick="state.timerType='bomb';updateView()" class="w-64 h-72 rounded-[40px] cursor-pointer border-8 ${state.timerType==='bomb'?'border-orange-500 bg-orange-50':'border-white bg-white/50'} flex flex-col items-center justify-center transition-all">
+                            <span class="text-[120px]">💣</span><span class="text-3xl font-black mt-2 text-orange-700">炸彈模式</span>
                         </div>
-                        <div onclick="state.timerType='car';updateView()" class="w-56 h-56 rounded-[40px] cursor-pointer border-8 ${state.timerType==='car'?'border-blue-500 bg-blue-50':'border-white bg-white/50'} flex flex-col items-center justify-center transition-all">
-                            <span class="text-9xl">🏎️</span><span class="text-2xl font-black mt-2 text-blue-700">賽車模式</span>
+                        <div onclick="state.timerType='car';updateView()" class="w-64 h-72 rounded-[40px] cursor-pointer border-8 ${state.timerType==='car'?'border-blue-500 bg-blue-50':'border-white bg-white/50'} flex flex-col items-center justify-center transition-all">
+                            <span class="text-[120px]">🏎️</span><span class="text-3xl font-black mt-2 text-blue-700">賽車模式</span>
                         </div>
                     </div>
-                    <div class="flex gap-4">
-                        ${[10, 15, 20, 30, 60].map(s => `
-                            <button onclick="state.duration=${s};updateView()" class="w-28 py-4 rounded-2xl text-2xl font-bold ${state.duration===s?'btn-orange':'bg-white border-4 border-orange-100'}">${s}秒</button>
+                    <div class="flex flex-wrap justify-center gap-3">
+                        ${[5, 10, 15, 20, 25, 30, 60].map(s => `
+                            <button onclick="state.duration=${s};updateView()" class="w-24 py-3 rounded-2xl text-xl font-bold ${state.duration===s?'btn-orange':'bg-white border-4 border-orange-100'}">${s}秒</button>
                         `).join('')}
                     </div>
                     <button onclick="startGame()" class="px-40 py-8 btn-emerald btn-active rounded-full font-black text-5xl shadow-2xl">GO! 🏁</button>
@@ -434,44 +486,45 @@
         function renderGame(app) {
             app.innerHTML = `
                 <div class="h-[80vh] flex flex-col items-center justify-between">
-                    <div class="w-full max-w-4xl flex flex-col items-center gap-2">
-                        <div class="w-full flex justify-between items-end px-4">
-                            <span class="text-5xl font-black text-white drop-shadow-md" id="timerText">${state.timeLeft}秒</span>
-                            <button onclick="togglePause()" id="pauseBtn" class="px-8 py-2 btn-blue btn-active rounded-full font-black text-xl">暫停 ⏸</button>
+                    <div class="w-full max-w-4xl">
+                        <div class="flex justify-between items-center px-4 mb-2">
+                             <span class="text-6xl font-black text-white drop-shadow-lg" id="timerText">${state.timeLeft}秒</span>
+                             <button onclick="togglePause()" id="pauseBtn" class="px-8 py-2 btn-blue btn-active rounded-full font-black text-xl">暫停 ⏸</button>
                         </div>
                         <div class="timer-container">
-                            <div class="endpoint-emoji left-[-15px]">${state.timerType==='bomb'?'🔥':''}</div>
-                            <div class="endpoint-emoji right-[-15px]">${state.timerType==='car'?'🏁':''}</div>
+                            <div class="endpoint-emoji" style="left: 0%">${state.timerType==='bomb'?'🔥':''}</div>
+                            <div class="endpoint-emoji" style="left: 100%">${state.timerType==='car'?'🏁':''}</div>
+                            
                             <div class="timer-track">
                                 <div id="tFill" class="timer-fill ${state.timerType==='bomb'?'bomb-gradient':'car-gradient'}" style="width:100%"></div>
-                                <div id="tMover" class="mover-emoji" style="${state.timerType==='bomb'?'right:0%':'left:0%'}">${state.timerType==='bomb'?'💣':'🏎️'}</div>
+                                <div id="tMover" class="mover-emoji" style="left: 100%">${state.timerType==='bomb'?'💣':'🏎️'}</div>
                             </div>
                         </div>
                     </div>
 
-                    <h1 class="text-7xl font-black text-white drop-shadow-lg text-center">${state.customCategory || state.selectedItems[0]?.cat}</h1>
+                    <h1 class="text-7xl font-black text-white drop-shadow-lg text-center px-4">${state.customCategory || state.selectedItems[0]?.cat}</h1>
 
-                    <div class="flex flex-col items-center gap-8">
-                        <div onclick="tapStar()" class="big-star-btn">⭐</div>
-                        <div class="text-9xl font-black text-white drop-shadow-lg" id="liveCounter">0</div>
+                    <div class="flex flex-col items-center gap-6">
+                        <div onclick="tapStar()" class="star-button">⭐</div>
+                        <div class="text-[120px] leading-none font-black text-white drop-shadow-lg" id="liveCounter">0</div>
                     </div>
                     <div class="h-10"></div>
                 </div>
             `;
+            updateTimerUI();
         }
 
         function renderSummary(app) {
-            const finalCatName = state.customCategory || state.selectedItems[0]?.cat || "未命名";
             app.innerHTML = `
                 <div id="reportCard" class="bg-white p-12 rounded-[50px] shadow-2xl max-w-6xl mx-auto border-[12px] border-sky-50">
-                    <div class="flex justify-between items-center border-b-8 border-sky-50 pb-10 mb-10">
+                    <div class="flex justify-between items-center border-b-8 border-sky-50 pb-8 mb-10">
                         <div>
-                            <h2 class="text-6xl font-black text-sky-900">${finalCatName}</h2>
+                            <h2 class="text-6xl font-black text-sky-900">${state.customCategory || state.selectedItems[0]?.cat}</h2>
                             <p class="text-2xl font-bold text-gray-400 mt-4">練習模式：擴展性命名 | 限時：${state.duration}秒</p>
                         </div>
-                        <div class="bg-emerald-50 px-10 py-6 rounded-3xl border-4 border-emerald-100 text-center">
-                            <p class="text-2xl font-bold text-emerald-800">已命名</p>
-                            <span class="text-8xl font-black text-emerald-600" id="summaryCount">0</span>
+                        <div class="bg-yellow-50 px-12 py-6 rounded-3xl border-4 border-yellow-200 text-center">
+                            <p class="text-2xl font-bold text-yellow-800">已命名</p>
+                            <span class="text-9xl font-black text-yellow-600">${state.liveCount}</span>
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-8 justify-center">
@@ -489,7 +542,16 @@
             `;
         }
 
-        // --- Core Logic ---
+        // --- Logic ---
+        function handleSizeChange(val) {
+            document.documentElement.style.setProperty('--card-width', val + 'px');
+            document.documentElement.style.setProperty('--card-font-size', (val/100) + 'rem');
+        }
+
+        function selectAllInCat(cat) {
+            vocabList.filter(v => v.cat === cat).forEach(i => { if(!state.selectedItems.some(s=>s.id===i.id)) state.selectedItems.push(i); });
+            updateView();
+        }
 
         function toggleItem(id) {
             const idx = state.selectedItems.findIndex(s => s.id === id);
@@ -513,32 +575,32 @@
             
             timerInt = setInterval(() => {
                 if(state.isPaused) return;
-                state.timeLeft -= 0.1;
+                state.timeLeft -= 0.05;
                 if(state.timeLeft <= 0) {
                     clearInterval(timerInt);
                     state.timeLeft = 0;
                     endGame();
                 }
                 updateTimerUI();
-            }, 100);
+            }, 50);
         }
 
         function updateTimerUI() {
-            const p = (state.timeLeft / state.duration) * 100;
             const fill = document.getElementById('tFill');
             const mover = document.getElementById('tMover');
             const txt = document.getElementById('timerText');
-            
             if(!fill || !mover) return;
 
+            const percent = (state.timeLeft / state.duration) * 100;
             txt.innerText = Math.ceil(state.timeLeft) + "秒";
 
             if(state.timerType === 'bomb') {
-                fill.style.width = p + "%";
-                mover.style.right = (100 - p) + "%";
+                fill.style.width = percent + "%";
+                mover.style.left = percent + "%"; // Mover stays at the edge of the decreasing bar
             } else {
-                fill.style.width = (100 - p) + "%";
-                mover.style.left = (100 - p) + "%";
+                const travelled = 100 - percent;
+                fill.style.width = travelled + "%";
+                mover.style.left = travelled + "%"; // Mover stays at the edge of increasing bar
             }
         }
 
@@ -557,24 +619,11 @@
         function endGame() {
             if(state.timerType === 'bomb') sounds.bomb.play();
             else sounds.win.play();
-            
-            setTimeout(() => {
-                state.view = 'SUMMARY';
-                updateView();
-            }, 1500);
+            setTimeout(() => { state.view = 'SUMMARY'; updateView(); }, 1200);
         }
 
         function toggleScore(id) {
-            const el = document.getElementById(`sum-${id}`);
-            const idx = state.scoredIds.indexOf(id);
-            if(idx > -1) {
-                state.scoredIds.splice(idx, 1);
-                el.classList.remove('scored');
-            } else {
-                state.scoredIds.push(id);
-                el.classList.add('scored');
-            }
-            document.getElementById('summaryCount').innerText = state.scoredIds.length;
+            document.getElementById(`sum-${id}`).classList.toggle('scored');
         }
 
         async function exportResult() {
