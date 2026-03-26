@@ -10,58 +10,47 @@
         :root { 
             --blue-main: #0EA5E9;
             --blue-dark: #0369a1;
-            --orange-main: #EA580C; /* Matching categorization game orange */
+            --orange-main: #EA580C; 
             --card-width: 110px;
             --card-font-size: 1.1rem;
         }
         body { font-family: "PingFang HK", "Heiti TC", sans-serif; overflow-x: hidden; user-select: none; transition: background 0.3s; }
         
-        /* Background classes */
         .bg-park { background: url('images/park.jpg') center/cover fixed; }
         .bg-room { background: url('images/room.jpg') center/cover fixed; }
         .bg-road { background: url('images/road.jpg') center/cover fixed; }
         .bg-game { background: url('images/game.jpg') center/cover fixed; }
         .bg-white { background-color: #ffffff; }
 
-        /* 3D Button Styles */
         .btn-blue { background-color: var(--blue-main); border-bottom: 5px solid var(--blue-dark); color: white; }
         .btn-orange { background-color: var(--orange-main); border-bottom: 5px solid #9a3412; color: white; }
         .btn-emerald { background-color: #059669; border-bottom: 5px solid #064e3b; color: white; }
         .btn-gray { background-color: #6b7280; border-bottom: 5px solid #374151; color: white; }
         .btn-active:active { transform: translateY(2px); border-bottom-width: 2px; }
 
-        /* Vocab Card Logic */
         .vocab-card { width: var(--card-width); flex-shrink: 0; background: white; padding: 10px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; transition: 0.2s; }
         .vocab-card p { font-size: var(--card-font-size); }
-        .selected-card { outline: 6px solid #22c55e; box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
+        .selected-card { outline: 6px solid #22c55e; box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); transform: scale(1.02); }
         
+        /* Ensures jumped category title isn't hidden by the floating search bar */
+        .category-section { scroll-margin-top: 180px; }
+
         .prep-box { background: white; border: 6px solid var(--blue-main); border-radius: 30px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
         .prep-header { background: var(--blue-main); color: white; padding: 20px; font-size: 2.5rem; font-weight: 900; text-align: center; }
 
-        /* Timer UI */
         .timer-container { width: 100%; max-width: 800px; position: relative; padding: 40px 0; margin-top: 20px; }
-        .timer-track { 
-            height: 45px; width: 100%; border-radius: 999px; position: relative; 
-            border: 6px solid white; background: rgba(255,255,255,0.3); box-shadow: inset 0 4px 6px rgba(0,0,0,0.1);
-        }
+        .timer-track { height: 45px; width: 100%; border-radius: 999px; position: relative; border: 6px solid white; background: rgba(255,255,255,0.3); box-shadow: inset 0 4px 6px rgba(0,0,0,0.1); }
         .timer-fill { height: 100%; border-radius: 999px; transition: width 0.1s linear; }
         .bomb-gradient { background: linear-gradient(to right, #f87171, #facc15); }
         .car-gradient { background: linear-gradient(to right, #60a5fa, #2563eb); }
         
-        /* Mover precisely tracks the tip */
-        .mover-emoji { position: absolute; top: -35px; font-size: 80px; z-index: 30; transform: translateX(-50%); transition: left 0.1s linear, right 0.1s linear; }
+        .mover-emoji { position: absolute; top: -35px; font-size: 80px; z-index: 30; transform: translateX(-50%); transition: left 0.1s linear; }
         .endpoint-emoji { position: absolute; top: -25px; font-size: 65px; z-index: 10; transform: translateX(-50%); }
 
-        /* Enhanced Counting Button */
         .star-button {
-            width: 240px; height: 240px; border-radius: 50%;
-            background: #FFD700; /* Bright Gold */
-            border: 12px solid #B8860B;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 110px; color: #8B4513;
-            box-shadow: 0 18px 0 #926f00, 0 25px 45px rgba(0,0,0,0.4);
-            cursor: pointer; transition: all 0.1s;
-            text-shadow: 2px 2px 0 rgba(255,255,255,0.5);
+            width: 240px; height: 240px; border-radius: 50%; background: #FFD700; border: 12px solid #B8860B;
+            display: flex; align-items: center; justify-content: center; font-size: 110px; color: #8B4513;
+            box-shadow: 0 18px 0 #926f00, 0 25px 45px rgba(0,0,0,0.4); cursor: pointer; transition: all 0.1s; text-shadow: 2px 2px 0 rgba(255,255,255,0.5);
         }
         .star-button:active { transform: translateY(12px); box-shadow: 0 6px 0 #926f00, 0 12px 20px rgba(0,0,0,0.2); }
 
@@ -99,265 +88,7 @@
     <main id="app" class="mt-16 p-4"></main>
 
     <script>
-        const bulkData = `
-        水果	哈密瓜	水果/哈密瓜.png
-        水果	士多啤梨	水果/士多啤梨.png
-        水果	奇異果	水果/奇異果.png
-        水果	提子	水果/提子.png
-        水果	木瓜	水果/木瓜.png
-        水果	楊桃	水果/楊桃.png
-        水果	榴槤	水果/榴槤.png
-        水果	橙	水果/橙.png
-        水果	檸檬	水果/檸檬.png
-        水果	火龍果	水果/火龍果.png
-        水果	牛油果	水果/牛油果.png
-        水果	芒果	水果/芒果.png
-        水果	荔枝	水果/荔枝.png
-        水果	菠蘿	水果/菠蘿.png
-        水果	藍莓	水果/藍莓.png
-        水果	蘋果	水果/蘋果.png
-        水果	西瓜	水果/西瓜.png
-        水果	車厘子	水果/車厘子.png
-        水果	香蕉	水果/香蕉.png
-        水果	龍眼	水果/龍眼.png
-        蔬菜	南瓜	蔬菜/南瓜.png
-        蔬菜	娃娃菜	蔬菜/娃娃菜.png
-        蔬菜	椰菜	蔬菜/椰菜.png
-        蔬菜	椰菜花	蔬菜/椰菜花.png
-        蔬菜	洋蔥	蔬菜/洋蔥.png
-        蔬菜	生菜	蔬菜/生菜.png
-        蔬菜	番薯	蔬菜/番薯.png
-        蔬菜	白菜	蔬菜/白菜.png
-        蔬菜	粟米	蔬菜/粟米.png
-        蔬菜	紅椒	蔬菜/紅椒.png
-        蔬菜	紅蘿蔔	蔬菜/紅蘿蔔.png
-        蔬菜	茄子	蔬菜/茄子.png
-        蔬菜	菜心	蔬菜/菜心.png
-        蔬菜	菠菜	蔬菜/菠菜.png
-        蔬菜	蕃茄	蔬菜/蕃茄.png
-        蔬菜	薯仔	蔬菜/薯仔.png
-        蔬菜	蘑菇	蔬菜/蘑菇.png
-        蔬菜	蘿蔔	蔬菜/蘿蔔.png
-        蔬菜	西蘭花	蔬菜/西蘭花.png
-        蔬菜	辣椒	蔬菜/辣椒.png
-        蔬菜	青椒	蔬菜/青椒.png
-        蔬菜	青瓜	蔬菜/青瓜.png
-        蔬菜	青豆	蔬菜/青豆.png
-        蔬菜	黃椒	蔬菜/黃椒.png
-        動物	企鵝	動物/企鵝.png
-        動物	倉鼠	動物/倉鼠.png
-        動物	兔	動物/兔.png
-        動物	北極熊	動物/北極熊.png
-        動物	大象	動物/大象.png
-        動物	天鵝	動物/天鵝.png
-        動物	斑馬	動物/斑馬.png
-        動物	樹熊	動物/樹熊.png
-        動物	河馬	動物/河馬.png
-        動物	熊	動物/熊.png
-        動物	熊貓	動物/熊貓.png
-        動物	牛	動物/牛.png
-        動物	狐狸	動物/狐狸.png
-        動物	狗	動物/狗.png
-        動物	獅子	動物/獅子.png
-        動物	羊	動物/羊.png
-        動物	老虎	動物/老虎.png
-        動物	老鼠	動物/老鼠.png
-        動物	蛇	動物/蛇.png
-        動物	袋鼠	動物/袋鼠.png
-        動物	豬	動物/豬.png
-        動物	豹	動物/豹.png
-        動物	貓	動物/貓.png
-        動物	貓頭鷹	動物/貓頭鷹.png
-        動物	長頸鹿	動物/長頸鹿.png
-        動物	雞	動物/雞.png
-        動物	馬	動物/馬.png
-        動物	馬騮｜猴子	動物/馬騮｜猴子.png
-        動物	駱駝	動物/駱駝.png
-        動物	鱷魚	動物/鱷魚.png
-        動物	鴨	動物/鴨.png
-        動物	鸚鵡	動物/鸚鵡.png
-        動物	鹿	動物/鹿.png
-        動物	麻雀｜雀仔	動物/麻雀｜雀仔.png
-        動物	龜	動物/龜.png
-        交通工具	單車	交通工具/單車.png
-        交通工具	垃圾車	交通工具/垃圾車.png
-        交通工具	天星小輪	交通工具/天星小輪.png
-        交通工具	小巴	交通工具/小巴.png
-        交通工具	巴士	交通工具/巴士.png
-        交通工具	救護車	交通工具/救護車.png
-        交通工具	旅遊巴	交通工具/旅遊巴.png
-        交通工具	消防車	交通工具/消防車.png
-        交通工具	港鐵	交通工具/港鐵.png
-        交通工具	的士	交通工具/的士.png
-        交通工具	直升機	交通工具/直升機.png
-        交通工具	警車	交通工具/警車.png
-        交通工具	貨櫃車	交通工具/貨櫃車.png
-        交通工具	輕鐵	交通工具/輕鐵.png
-        交通工具	郵輪	交通工具/郵輪.png
-        交通工具	電單車	交通工具/電單車.png
-        交通工具	電車	交通工具/電車.png
-        交通工具	飛機	交通工具/飛機.png
-        衣服	冷帽	衣服/冷帽.png
-        衣服	冷衫｜外套	衣服/冷衫｜外套.png
-        衣服	冷衫｜毛衣	衣服/冷衫｜毛衣.png
-        衣服	呔	衣服/呔.png
-        衣服	外套｜褸	衣服/外套｜褸.png
-        衣服	帽	衣服/帽.png
-        衣服	恤衫	衣服/恤衫.png
-        衣服	手襪	衣服/手襪.png
-        衣服	拖鞋	衣服/拖鞋.png
-        衣服	校服	衣服/校服.png
-        衣服	泳衣	衣服/泳衣.png
-        衣服	泳褲	衣服/泳褲.png
-        衣服	皮帶	衣服/皮帶.png
-        衣服	短褲	衣服/短褲.png
-        衣服	羽絨	衣服/羽絨.png
-        衣服	衫	衣服/衫.png
-        衣服	裙	衣服/裙.png
-        衣服	襪	衣服/襪.png
-        衣服	長褲	衣服/長褲.png
-        衣服	雨衣｜雨褸	衣服/雨衣｜雨褸.png
-        衣服	雨靴	衣服/雨靴.png
-        衣服	鞋	衣服/鞋.png
-        衣服	頸巾	衣服/頸巾.png
-        文具	刨筆機	文具/刨筆機.png
-        文具	原子筆	文具/原子筆.png
-        文具	擦膠	文具/擦膠.png
-        文具	橡筋	文具/橡筋.png
-        文具	水筆	文具/水筆.png
-        文具	漿糊筆	文具/漿糊筆.png
-        文具	白膠漿	文具/白膠漿.png
-        文具	簿	文具/簿.png
-        文具	膠水	文具/膠水.png
-        文具	膠紙	文具/膠紙.png
-        文具	萬字夾	文具/萬字夾.png
-        文具	螢光筆	文具/螢光筆.png
-        文具	釘書機	文具/釘書機.png
-        文具	鉛筆	文具/鉛筆.png
-        文具	鉛筆刨	文具/鉛筆刨.png
-        文具	鉸剪｜剪刀	文具/鉸剪｜剪刀.png
-        文具	間尺	文具/間尺.png
-        文具	顏色筆	文具/顏色筆.png
-        文具	顏色紙	文具/顏色紙.png
-        傢俬	床	傢俬/床.png
-        傢俬	書櫃	傢俬/書櫃.png
-        傢俬	枱	傢俬/枱.png
-        傢俬	梳化	傢俬/梳化.png
-        傢俬	櫃	傢俬/櫃.png
-        傢俬	櫈	傢俬/櫈.png
-        傢俬	衣櫃	傢俬/衣櫃.png
-        電器	冷氣機	電器/冷氣機.png
-        電器	吸塵機	電器/吸塵機.png
-        電器	微波爐	電器/微波爐.png
-        電器	洗衣機	電器/洗衣機.png
-        電器	焗爐	電器/焗爐.png
-        電器	熨斗	電器/熨斗.png
-        電器	熱水壺	電器/熱水壺.png
-        電器	燈	電器/燈.png
-        電器	雪櫃	電器/雪櫃.png
-        電器	電磁爐	電器/電磁爐.png
-        電器	電腦	電器/電腦.png
-        電器	電視	電器/電視.png
-        電器	電飯煲	電器/電飯煲.png
-        電器	風扇	電器/風扇.png
-        電器	風筒	電器/風筒.png
-        玩具	套圈	玩具/套圈.png
-        玩具	恐龍	玩具/恐龍.png
-        玩具	機械人	玩具/機械人.png
-        玩具	水槍	玩具/水槍.png
-        玩具	波	玩具/波.png
-        玩具	火車	玩具/火車.png
-        玩具	煮飯仔	玩具/煮飯仔.png
-        玩具	熊啤啤	玩具/熊啤啤.png
-        玩具	玩具屋	玩具/玩具屋.png
-        玩具	琴	玩具/琴.png
-        玩具	積木	玩具/積木.png
-        玩具	籃球	玩具/籃球.png
-        玩具	足球	玩具/足球.png
-        玩具	車	玩具/車.png
-        玩具	遙控車	玩具/遙控車.png
-        玩具	風箏	玩具/風箏.png
-        玩具	鼓	玩具/鼓.png
-        玩具	Lego｜積木	玩具/Lego｜積木.png
-        玩具	puzzle｜拼圖	玩具/puzzle｜拼圖.png
-        飲品	咖啡	飲品/咖啡.png
-        飲品	朱古力奶	飲品/朱古力奶.png
-        飲品	橙汁	飲品/橙汁.png
-        飲品	檸檬茶	飲品/檸檬茶.png
-        飲品	水	飲品/水.png
-        飲品	汽水	飲品/汽水.png
-        飲品	湯	飲品/湯.png
-        飲品	牛奶	飲品/牛奶.png
-        飲品	益力多	飲品/益力多.png
-        飲品	維他奶	飲品/維他奶.png
-        飲品	茶	飲品/茶.png
-        飲品	豆漿	飲品/豆漿.png
-        餐具及廚具	刀	餐具及廚具/刀.png
-        餐具及廚具	匙羹	餐具及廚具/匙羹.png
-        餐具及廚具	叉	餐具及廚具/叉.png
-        餐具及廚具	杯	餐具及廚具/杯.png
-        餐具及廚具	煲	餐具及廚具/煲.png
-        餐具及廚具	碗	餐具及廚具/碗.png
-        餐具及廚具	碟	餐具及廚具/碟.png
-        餐具及廚具	筷子	餐具及廚具/筷子.png
-        餐具及廚具	鑊鏟	餐具及廚具/鑊鏟.png
-        餐具及廚具	飲筒｜飲管	餐具及廚具/飲筒｜飲管.png
-        廁所物品	地拖	廁所物品/地拖.png
-        廁所物品	廁紙	廁所物品/廁紙.png
-        廁所物品	掃把	廁所物品/掃把.png
-        廁所物品	梘液	廁所物品/梘液.png
-        廁所物品	梳	廁所物品/梳.png
-        廁所物品	毛巾	廁所物品/毛巾.png
-        廁所物品	水桶	廁所物品/水桶.png
-        廁所物品	浴缸	廁所物品/浴缸.png
-        廁所物品	牙刷	廁所物品/牙刷.png
-        廁所物品	牙膏	廁所物品/牙膏.png
-        廁所物品	花灑	廁所物品/花灑.png
-        廁所物品	馬桶	廁所物品/馬桶.png
-        職業	侍應	職業/侍應.png
-        職業	司機	職業/司機.png
-        職業	外賣員	職業/外賣員.png
-        職業	太空人	職業/太空人.png
-        職業	工程師	職業/工程師.png
-        職業	廚師	職業/廚師.png
-        職業	收銀員	職業/收銀員.png
-        職業	消防員	職業/消防員.png
-        職業	清潔工人	職業/清潔工人.png
-        職業	老師	職業/老師.png
-        職業	警察	職業/警察.png
-        職業	護士	職業/護士.png
-        職業	農夫	職業/農夫.png
-        職業	郵差	職業/郵差.png
-        職業	醫生	職業/醫生.png
-        顏色	啡色	顏色/啡色.png
-        顏色	橙色	顏色/橙色.png
-        顏色	灰色	顏色/灰色.png
-        顏色	白色	顏色/白色.png
-        顏色	粉紅色	顏色/粉紅色.png
-        顏色	紅色	顏色/紅色.png
-        顏色	紫色	顏色/紫色.png
-        顏色	綠色	顏色/綠色.png
-        顏色	藍色	顏色/藍色.png
-        顏色	黃色	顏色/黃色.png
-        顏色	黑色	顏色/黑色.png
-        形狀	三角形	形狀/三角形.png
-        形狀	圓形	形狀/圓形.png
-        形狀	心形	形狀/心形.png
-        形狀	星形	形狀/星形.png
-        形狀	正方形	形狀/正方形.png
-        形狀	菱形	形狀/菱形.png
-        形狀	長方形	形狀/長方形.png
-        數字	1	數字/1.png
-        數字	2	數字/2.png
-        數字	3	數字/3.png
-        數字	4	數字/4.png
-        數字	5	數字/5.png
-        數字	6	數字/6.png
-        數字	7	數字/7.png
-        數字	8	數字/8.png
-        數字	9	數字/9.png
-        數字	10	數字/10.png
-        `;
+        const bulkData = `水果 哈密瓜 水果/哈密瓜.png\n水果 士多啤梨 水果/士多啤梨.png\n水果 奇異果 水果/奇異果.png\n蔬菜 粟米 蔬菜/粟米.png\n蔬菜 紅椒 蔬菜/紅椒.png\n蔬菜 白菜 蔬菜/白菜.png\n動物 狗 動物/狗.png\n動物 貓 動物/貓.png`;
         const vocabList = bulkData.trim().split('\n').map(l => {
             const [cat, name, path] = l.trim().split(/\s+/);
             return { cat, name, path: `images/${path}`, id: 'v-'+Math.random().toString(36).substr(2,9) };
@@ -372,8 +103,7 @@
             duration: 15,
             timeLeft: 15,
             isPaused: false,
-            liveCount: 0,
-            scoredIds: []
+            liveCount: 0
         };
 
         const sounds = { star: new Audio('sounds/star.mp3'), bomb: new Audio('sounds/bomb.mp3'), win: new Audio('sounds/hooray.mp3') };
@@ -393,11 +123,11 @@
         function renderSelection(app) {
             app.innerHTML = `
                 <div class="max-w-6xl mx-auto">
-                    <div class="sticky top-14 z-40 bg-white/90 p-4 rounded-2xl mb-6 shadow-sm flex flex-col gap-4 border border-gray-200">
+                    <div class="sticky top-14 z-40 bg-white/95 p-4 rounded-2xl mb-6 shadow-md flex flex-col gap-4 border border-gray-200">
                         <div class="flex gap-4 items-center">
                             <span class="font-bold text-gray-600 shrink-0 text-lg">題目：</span>
-                            <input type="text" id="catInput" placeholder="輸入題目 (例如：紅色的水果)" class="flex-1 p-3 border-2 rounded-xl text-xl font-bold" value="${state.customCategory}" onchange="state.customCategory=this.value">
-                            <button onclick="goPrep()" class="px-10 py-3 btn-orange btn-active rounded-full font-black text-xl">下一步 (${state.selectedItems.length})</button>
+                            <input type="text" id="catInput" placeholder="輸入題目 (例如：紅色的水果)" class="flex-1 p-3 border-2 rounded-xl text-xl font-bold" value="${state.customCategory}" oninput="state.customCategory=this.value">
+                            <button id="nextBtn" onclick="goPrep()" class="px-10 py-3 btn-orange btn-active rounded-full font-black text-xl transition-all">下一步 (${state.selectedItems.length})</button>
                         </div>
                         <div class="flex gap-4">
                             <select onchange="document.getElementById('section-'+this.value).scrollIntoView({behavior: 'smooth'})" class="p-2 border-2 border-gray-200 rounded-xl font-bold bg-white">
@@ -425,7 +155,7 @@
             } else {
                 categories.forEach(cat => {
                     html += `
-                    <div id="section-${cat}" class="mb-8">
+                    <div id="section-${cat}" class="mb-8 category-section">
                         <div class="bg-orange-600 text-white px-6 py-2 rounded-t-xl flex justify-between items-center shadow-md">
                             <span class="text-xl font-black">${cat}</span>
                             <button onclick="selectAllInCat('${cat}')" class="text-sm bg-white/20 px-4 py-1 rounded-full font-bold hover:bg-white/40">全選</button>
@@ -440,8 +170,38 @@
         }
 
         function renderCardHTML(v) {
-            const active = state.selectedItems.some(i => i.id === v.id) ? 'selected-card' : '';
-            return `<div onclick="toggleItem('${v.id}')" class="vocab-card cursor-pointer ${active}"><img src="${v.path}" class="w-full pointer-events-none"><p>${v.name}</p></div>`;
+            const isSelected = state.selectedItems.some(i => i.id === v.id);
+            const active = isSelected ? 'selected-card' : '';
+            return `<div id="card-${v.id}" onclick="toggleItem('${v.id}')" class="vocab-card cursor-pointer ${active}"><img src="${v.path}" class="w-full pointer-events-none"><p>${v.name}</p></div>`;
+        }
+
+        function toggleItem(id) {
+            const idx = state.selectedItems.findIndex(s => s.id === id);
+            const cardEl = document.getElementById(`card-${id}`);
+            
+            if(idx > -1) {
+                state.selectedItems.splice(idx, 1);
+                if(cardEl) cardEl.classList.remove('selected-card');
+            } else {
+                state.selectedItems.push(vocabList.find(v => v.id === id));
+                if(cardEl) cardEl.classList.add('selected-card');
+            }
+            
+            // Update the count button text without refreshing the whole page
+            const nextBtn = document.getElementById('nextBtn');
+            if(nextBtn) nextBtn.innerText = `下一步 (${state.selectedItems.length})`;
+        }
+
+        function selectAllInCat(cat) {
+            vocabList.filter(v => v.cat === cat).forEach(i => { 
+                if(!state.selectedItems.some(s=>s.id===i.id)) {
+                    state.selectedItems.push(i);
+                    const cardEl = document.getElementById(`card-${i.id}`);
+                    if(cardEl) cardEl.classList.add('selected-card');
+                }
+            });
+            const nextBtn = document.getElementById('nextBtn');
+            if(nextBtn) nextBtn.innerText = `下一步 (${state.selectedItems.length})`;
         }
 
         function renderPrep(app) {
@@ -494,16 +254,13 @@
                         <div class="timer-container">
                             <div class="endpoint-emoji" style="left: 0%">${state.timerType==='bomb'?'🔥':''}</div>
                             <div class="endpoint-emoji" style="left: 100%">${state.timerType==='car'?'🏁':''}</div>
-                            
                             <div class="timer-track">
                                 <div id="tFill" class="timer-fill ${state.timerType==='bomb'?'bomb-gradient':'car-gradient'}" style="width:100%"></div>
                                 <div id="tMover" class="mover-emoji" style="left: 100%">${state.timerType==='bomb'?'💣':'🏎️'}</div>
                             </div>
                         </div>
                     </div>
-
                     <h1 class="text-7xl font-black text-white drop-shadow-lg text-center px-4">${state.customCategory || state.selectedItems[0]?.cat}</h1>
-
                     <div class="flex flex-col items-center gap-6">
                         <div onclick="tapStar()" class="star-button">⭐</div>
                         <div class="text-[120px] leading-none font-black text-white drop-shadow-lg" id="liveCounter">0</div>
@@ -529,7 +286,7 @@
                     </div>
                     <div class="flex flex-wrap gap-8 justify-center">
                         ${state.selectedItems.map(i => `
-                            <div onclick="toggleScore('${i.id}')" id="sum-${i.id}" class="vocab-card summary-card">
+                            <div onclick="this.classList.toggle('scored')" class="vocab-card summary-card">
                                 <img src="${i.path}" class="w-full rounded-lg">
                                 <p class="mt-3 text-xl font-bold">${i.name}</p>
                             </div>
@@ -542,22 +299,9 @@
             `;
         }
 
-        // --- Logic ---
         function handleSizeChange(val) {
             document.documentElement.style.setProperty('--card-width', val + 'px');
             document.documentElement.style.setProperty('--card-font-size', (val/100) + 'rem');
-        }
-
-        function selectAllInCat(cat) {
-            vocabList.filter(v => v.cat === cat).forEach(i => { if(!state.selectedItems.some(s=>s.id===i.id)) state.selectedItems.push(i); });
-            updateView();
-        }
-
-        function toggleItem(id) {
-            const idx = state.selectedItems.findIndex(s => s.id === id);
-            if(idx > -1) state.selectedItems.splice(idx, 1);
-            else state.selectedItems.push(vocabList.find(v => v.id === id));
-            updateView();
         }
 
         function goPrep() {
@@ -572,15 +316,10 @@
             state.liveCount = 0;
             state.isPaused = false;
             updateView();
-            
             timerInt = setInterval(() => {
                 if(state.isPaused) return;
                 state.timeLeft -= 0.05;
-                if(state.timeLeft <= 0) {
-                    clearInterval(timerInt);
-                    state.timeLeft = 0;
-                    endGame();
-                }
+                if(state.timeLeft <= 0) { clearInterval(timerInt); state.timeLeft = 0; endGame(); }
                 updateTimerUI();
             }, 50);
         }
@@ -590,17 +329,15 @@
             const mover = document.getElementById('tMover');
             const txt = document.getElementById('timerText');
             if(!fill || !mover) return;
-
             const percent = (state.timeLeft / state.duration) * 100;
             txt.innerText = Math.ceil(state.timeLeft) + "秒";
-
             if(state.timerType === 'bomb') {
                 fill.style.width = percent + "%";
-                mover.style.left = percent + "%"; // Mover stays at the edge of the decreasing bar
+                mover.style.left = percent + "%";
             } else {
                 const travelled = 100 - percent;
                 fill.style.width = travelled + "%";
-                mover.style.left = travelled + "%"; // Mover stays at the edge of increasing bar
+                mover.style.left = travelled + "%";
             }
         }
 
@@ -617,13 +354,8 @@
         }
 
         function endGame() {
-            if(state.timerType === 'bomb') sounds.bomb.play();
-            else sounds.win.play();
+            if(state.timerType === 'bomb') sounds.bomb.play(); else sounds.win.play();
             setTimeout(() => { state.view = 'SUMMARY'; updateView(); }, 1200);
-        }
-
-        function toggleScore(id) {
-            document.getElementById(`sum-${id}`).classList.toggle('scored');
         }
 
         async function exportResult() {
