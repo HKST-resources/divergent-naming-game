@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>擴展性命名練習</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root { 
+            --blue-main: #0EA5E9;
+            --blue-dark: #0369a1;
+            --orange-main: #f97316;
+            --card-width: 120px;
+        }
+        body { font-family: "PingFang HK", "Heiti TC", sans-serif; overflow-x: hidden; user-select: none; background: url('images/park.jpg') center/cover fixed; }
+        
+        /* 3D Button Styles */
+        .btn-blue { background-color: var(--blue-main); border-bottom: 5px solid var(--blue-dark); color: white; }
+        .btn-orange { background-color: var(--orange-main); border-bottom: 5px solid #c2410c; color: white; }
+        .btn-emerald { background-color: #10b981; border-bottom: 5px solid #059669; color: white; }
+        .btn-active:active { transform: translateY(2px); border-bottom-width: 2px; }
+
+        /* Vocab Card Logic */
+        .vocab-card { width: var(--card-width); flex-shrink: 0; background: white; padding: 10px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; align-items: center; transition: 0.2s; }
+        .selected-card { outline: 6px solid #22c55e; box-shadow: 0 0 20px rgba(34, 197, 94, 0.5); }
+        
+        /* The Preparation Board (Single Box) */
+        .prep-box { background: white; border: 6px solid var(--blue-main); border-radius: 30px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
+        .prep-header { background: var(--blue-main); color: white; padding: 20px; font-size: 2.5rem; font-weight: 900; text-align: center; }
+
+        /* Timer Aesthetics */
+        .timer-container { width: 100%; max-width: 800px; position: relative; padding: 20px 0; }
+        .timer-track { 
+            height: 50px; width: 100%; border-radius: 999px; position: relative; 
+            border: 5px solid white; background: rgba(0,0,0,0.1); overflow: visible;
+        }
+        .timer-fill { height: 100%; border-radius: 999px; transition: width 0.1s linear; }
+        .bomb-gradient { background: linear-gradient(to left, #f87171, #facc15); }
+        .car-gradient { background: linear-gradient(to right, #60a5fa, #2563eb); }
+        
+        .mover-emoji { position: absolute; top: -25px; font-size: 70px; z-index: 30; transition: all 0.1s linear; }
+        .endpoint-emoji { position: absolute; top: -15px; font-size: 55px; z-index: 10; }
+
+        /* Massive Game Button */
+        .big-star-btn {
+            width: 220px; height: 220px; border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fbbf24, #d97706);
+            border: 10px solid #92400e; 
+            display: flex; align-items: center; justify-content: center;
+            font-size: 100px; color: white;
+            box-shadow: 0 15px 0 #78350f, 0 20px 40px rgba(0,0,0,0.3);
+            cursor: pointer; transition: all 0.1s;
+        }
+        .big-star-btn:active { transform: translateY(10px); box-shadow: 0 5px 0 #78350f, 0 10px 20px rgba(0,0,0,0.2); }
+
+        /* Summary Grayscale Logic */
+        .summary-card { filter: grayscale(100%); opacity: 0.5; cursor: pointer; border: 4px solid transparent; }
+        .summary-card.scored { filter: grayscale(0%); opacity: 1; border-color: #22c55e; background: #f0fdf4; transform: scale(1.05); }
+
+        .hide-text p { display: none; }
+    </style>
+</head>
+<body class="bg-park">
+
+    <nav class="fixed top-0 left-0 w-full h-14 bg-white/90 shadow-md z-[100] flex items-center justify-between px-6">
+        <button onclick="location.reload()" class="px-6 py-1 rounded-xl font-bold btn-blue btn-active text-lg">擴展性命名</button>
+        <div class="flex items-center gap-6 font-bold text-gray-700">
+            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" id="textToggle" checked onchange="updateView()"> 顯示文字</label>
+            <button onclick="exportResult()" class="px-4 py-1 bg-emerald-600 text-white rounded-md btn-active">匯出 💾</button>
+        </div>
+    </nav>
+
+    <main id="app" class="mt-20 p-4"></main>
+
+    <script>
+        const bulkData = `
+        水果	哈密瓜	水果/哈密瓜.png
+        水果	士多啤梨	水果/士多啤梨.png
+        水果	奇異果	水果/奇異果.png
+        水果	提子	水果/提子.png
+        水果	木瓜	水果/木瓜.png
+        水果	楊桃	水果/楊桃.png
+        水果	榴槤	水果/榴槤.png
+        水果	橙	水果/橙.png
+        水果	檸檬	水果/檸檬.png
+        水果	火龍果	水果/火龍果.png
+        水果	牛油果	水果/牛油果.png
+        水果	芒果	水果/芒果.png
+        水果	荔枝	水果/荔枝.png
+        水果	菠蘿	水果/菠蘿.png
+        水果	藍莓	水果/藍莓.png
+        水果	蘋果	水果/蘋果.png
+        水果	西瓜	水果/西瓜.png
+        水果	車厘子	水果/車厘子.png
+        水果	香蕉	水果/香蕉.png
+        水果	龍眼	水果/龍眼.png
+        蔬菜	南瓜	蔬菜/南瓜.png
+        蔬菜	娃娃菜	蔬菜/娃娃菜.png
+        蔬菜	椰菜	蔬菜/椰菜.png
+        蔬菜	椰菜花	蔬菜/椰菜花.png
+        蔬菜	洋蔥	蔬菜/洋蔥.png
+        蔬菜	生菜	蔬菜/生菜.png
+        蔬菜	番薯	蔬菜/番薯.png
+        蔬菜	白菜	蔬菜/白菜.png
+        蔬菜	粟米	蔬菜/粟米.png
+        蔬菜	紅椒	蔬菜/紅椒.png
+        蔬菜	紅蘿蔔	蔬菜/紅蘿蔔.png
+        蔬菜	茄子	蔬菜/茄子.png
+        蔬菜	菜心	蔬菜/菜心.png
+        蔬菜	菠菜	蔬菜/菠菜.png
+        蔬菜	蕃茄	蔬菜/蕃茄.png
+        蔬菜	薯仔	蔬菜/薯仔.png
+        蔬菜	蘑菇	蔬菜/蘑菇.png
+        蔬菜	蘿蔔	蔬菜/蘿蔔.png
+        蔬菜	西蘭花	蔬菜/西蘭花.png
+        蔬菜	辣椒	蔬菜/辣椒.png
+        蔬菜	青椒	蔬菜/青椒.png
+        蔬菜	青瓜	蔬菜/青瓜.png
+        蔬菜	青豆	蔬菜/青豆.png
+        蔬菜	黃椒	蔬菜/黃椒.png
+        動物	企鵝	動物/企鵝.png
+        動物	倉鼠	動物/倉鼠.png
+        動物	兔	動物/兔.png
+        動物	北極熊	動物/北極熊.png
+        動物	大象	動物/大象.png
+        動物	天鵝	動物/天鵝.png
+        動物	斑馬	動物/斑馬.png
+        動物	樹熊	動物/樹熊.png
+        動物	河馬	動物/河馬.png
+        動物	熊	動物/熊.png
+        動物	熊貓	動物/熊貓.png
+        動物	牛	動物/牛.png
+        動物	狐狸	動物/狐狸.png
+        動物	狗	動物/狗.png
+        動物	獅子	動物/獅子.png
+        動物	羊	動物/羊.png
+        動物	老虎	動物/老虎.png
+        動物	老鼠	動物/老鼠.png
+        動物	蛇	動物/蛇.png
+        動物	袋鼠	動物/袋鼠.png
+        動物	豬	動物/豬.png
+        動物	豹	動物/豹.png
+        動物	貓	動物/貓.png
+        動物	貓頭鷹	動物/貓頭鷹.png
+        動物	長頸鹿	動物/長頸鹿.png
+        動物	雞	動物/雞.png
+        動物	馬	動物/馬.png
+        動物	馬騮｜猴子	動物/馬騮｜猴子.png
+        動物	駱駝	動物/駱駝.png
+        動物	鱷魚	動物/鱷魚.png
+        動物	鴨	動物/鴨.png
+        動物	鸚鵡	動物/鸚鵡.png
+        動物	鹿	動物/鹿.png
+        動物	麻雀｜雀仔	動物/麻雀｜雀仔.png
+        動物	龜	動物/龜.png
+        交通工具	單車	交通工具/單車.png
+        交通工具	垃圾車	交通工具/垃圾車.png
+        交通工具	天星小輪	交通工具/天星小輪.png
+        交通工具	小巴	交通工具/小巴.png
+        交通工具	巴士	交通工具/巴士.png
+        交通工具	救護車	交通工具/救護車.png
+        交通工具	旅遊巴	交通工具/旅遊巴.png
+        交通工具	消防車	交通工具/消防車.png
+        交通工具	港鐵	交通工具/港鐵.png
+        交通工具	的士	交通工具/的士.png
+        交通工具	直升機	交通工具/直升機.png
+        交通工具	警車	交通工具/警車.png
+        交通工具	貨櫃車	交通工具/貨櫃車.png
+        交通工具	輕鐵	交通工具/輕鐵.png
+        交通工具	郵輪	交通工具/郵輪.png
+        交通工具	電單車	交通工具/電單車.png
+        交通工具	電車	交通工具/電車.png
+        交通工具	飛機	交通工具/飛機.png
+        衣服	冷帽	衣服/冷帽.png
+        衣服	冷衫｜外套	衣服/冷衫｜外套.png
+        衣服	冷衫｜毛衣	衣服/冷衫｜毛衣.png
+        衣服	呔	衣服/呔.png
+        衣服	外套｜褸	衣服/外套｜褸.png
+        衣服	帽	衣服/帽.png
+        衣服	恤衫	衣服/恤衫.png
+        衣服	手襪	衣服/手襪.png
+        衣服	拖鞋	衣服/拖鞋.png
+        衣服	校服	衣服/校服.png
+        衣服	泳衣	衣服/泳衣.png
+        衣服	泳褲	衣服/泳褲.png
+        衣服	皮帶	衣服/皮帶.png
+        衣服	短褲	衣服/短褲.png
+        衣服	羽絨	衣服/羽絨.png
+        衣服	衫	衣服/衫.png
+        衣服	裙	衣服/裙.png
+        衣服	襪	衣服/襪.png
+        衣服	長褲	衣服/長褲.png
+        衣服	雨衣｜雨褸	衣服/雨衣｜雨褸.png
+        衣服	雨靴	衣服/雨靴.png
+        衣服	鞋	衣服/鞋.png
+        衣服	頸巾	衣服/頸巾.png
+        文具	刨筆機	文具/刨筆機.png
+        文具	原子筆	文具/原子筆.png
+        文具	擦膠	文具/擦膠.png
+        文具	橡筋	文具/橡筋.png
+        文具	水筆	文具/水筆.png
+        文具	漿糊筆	文具/漿糊筆.png
+        文具	白膠漿	文具/白膠漿.png
+        文具	簿	文具/簿.png
+        文具	膠水	文具/膠水.png
+        文具	膠紙	文具/膠紙.png
+        文具	萬字夾	文具/萬字夾.png
+        文具	螢光筆	文具/螢光筆.png
+        文具	釘書機	文具/釘書機.png
+        文具	鉛筆	文具/鉛筆.png
+        文具	鉛筆刨	文具/鉛筆刨.png
+        文具	鉸剪｜剪刀	文具/鉸剪｜剪刀.png
+        文具	間尺	文具/間尺.png
+        文具	顏色筆	文具/顏色筆.png
+        文具	顏色紙	文具/顏色紙.png
+        傢俬	床	傢俬/床.png
+        傢俬	書櫃	傢俬/書櫃.png
+        傢俬	枱	傢俬/枱.png
+        傢俬	梳化	傢俬/梳化.png
+        傢俬	櫃	傢俬/櫃.png
+        傢俬	櫈	傢俬/櫈.png
+        傢俬	衣櫃	傢俬/衣櫃.png
+        電器	冷氣機	電器/冷氣機.png
+        電器	吸塵機	電器/吸塵機.png
+        電器	微波爐	電器/微波爐.png
+        電器	洗衣機	電器/洗衣機.png
+        電器	焗爐	電器/焗爐.png
+        電器	熨斗	電器/熨斗.png
+        電器	熱水壺	電器/熱水壺.png
+        電器	燈	電器/燈.png
+        電器	雪櫃	電器/雪櫃.png
+        電器	電磁爐	電器/電磁爐.png
+        電器	電腦	電器/電腦.png
+        電器	電視	電器/電視.png
+        電器	電飯煲	電器/電飯煲.png
+        電器	風扇	電器/風扇.png
+        電器	風筒	電器/風筒.png
+        玩具	套圈	玩具/套圈.png
+        玩具	恐龍	玩具/恐龍.png
+        玩具	機械人	玩具/機械人.png
+        玩具	水槍	玩具/水槍.png
+        玩具	波	玩具/波.png
+        玩具	火車	玩具/火車.png
+        玩具	煮飯仔	玩具/煮飯仔.png
+        玩具	熊啤啤	玩具/熊啤啤.png
+        玩具	玩具屋	玩具/玩具屋.png
+        玩具	琴	玩具/琴.png
+        玩具	積木	玩具/積木.png
+        玩具	籃球	玩具/籃球.png
+        玩具	足球	玩具/足球.png
+        玩具	車	玩具/車.png
+        玩具	遙控車	玩具/遙控車.png
+        玩具	風箏	玩具/風箏.png
+        玩具	鼓	玩具/鼓.png
+        玩具	Lego｜積木	玩具/Lego｜積木.png
+        玩具	puzzle｜拼圖	玩具/puzzle｜拼圖.png
+        飲品	咖啡	飲品/咖啡.png
+        飲品	朱古力奶	飲品/朱古力奶.png
+        飲品	橙汁	飲品/橙汁.png
+        飲品	檸檬茶	飲品/檸檬茶.png
+        飲品	水	飲品/水.png
+        飲品	汽水	飲品/汽水.png
+        飲品	湯	飲品/湯.png
+        飲品	牛奶	飲品/牛奶.png
+        飲品	益力多	飲品/益力多.png
+        飲品	維他奶	飲品/維他奶.png
+        飲品	茶	飲品/茶.png
+        飲品	豆漿	飲品/豆漿.png
+        餐具及廚具	刀	餐具及廚具/刀.png
+        餐具及廚具	匙羹	餐具及廚具/匙羹.png
+        餐具及廚具	叉	餐具及廚具/叉.png
+        餐具及廚具	杯	餐具及廚具/杯.png
+        餐具及廚具	煲	餐具及廚具/煲.png
+        餐具及廚具	碗	餐具及廚具/碗.png
+        餐具及廚具	碟	餐具及廚具/碟.png
+        餐具及廚具	筷子	餐具及廚具/筷子.png
+        餐具及廚具	鑊鏟	餐具及廚具/鑊鏟.png
+        餐具及廚具	飲筒｜飲管	餐具及廚具/飲筒｜飲管.png
+        廁所物品	地拖	廁所物品/地拖.png
+        廁所物品	廁紙	廁所物品/廁紙.png
+        廁所物品	掃把	廁所物品/掃把.png
+        廁所物品	梘液	廁所物品/梘液.png
+        廁所物品	梳	廁所物品/梳.png
+        廁所物品	毛巾	廁所物品/毛巾.png
+        廁所物品	水桶	廁所物品/水桶.png
+        廁所物品	浴缸	廁所物品/浴缸.png
+        廁所物品	牙刷	廁所物品/牙刷.png
+        廁所物品	牙膏	廁所物品/牙膏.png
+        廁所物品	花灑	廁所物品/花灑.png
+        廁所物品	馬桶	廁所物品/馬桶.png
+        職業	侍應	職業/侍應.png
+        職業	司機	職業/司機.png
+        職業	外賣員	職業/外賣員.png
+        職業	太空人	職業/太空人.png
+        職業	工程師	職業/工程師.png
+        職業	廚師	職業/廚師.png
+        職業	收銀員	職業/收銀員.png
+        職業	消防員	職業/消防員.png
+        職業	清潔工人	職業/清潔工人.png
+        職業	老師	職業/老師.png
+        職業	警察	職業/警察.png
+        職業	護士	職業/護士.png
+        職業	農夫	職業/農夫.png
+        職業	郵差	職業/郵差.png
+        職業	醫生	職業/醫生.png
+        顏色	啡色	顏色/啡色.png
+        顏色	橙色	顏色/橙色.png
+        顏色	灰色	顏色/灰色.png
+        顏色	白色	顏色/白色.png
+        顏色	粉紅色	顏色/粉紅色.png
+        顏色	紅色	顏色/紅色.png
+        顏色	紫色	顏色/紫色.png
+        顏色	綠色	顏色/綠色.png
+        顏色	藍色	顏色/藍色.png
+        顏色	黃色	顏色/黃色.png
+        顏色	黑色	顏色/黑色.png
+        形狀	三角形	形狀/三角形.png
+        形狀	圓形	形狀/圓形.png
+        形狀	心形	形狀/心形.png
+        形狀	星形	形狀/星形.png
+        形狀	正方形	形狀/正方形.png
+        形狀	菱形	形狀/菱形.png
+        形狀	長方形	形狀/長方形.png
+        數字	1	數字/1.png
+        數字	2	數字/2.png
+        數字	3	數字/3.png
+        數字	4	數字/4.png
+        數字	5	數字/5.png
+        數字	6	數字/6.png
+        數字	7	數字/7.png
+        數字	8	數字/8.png
+        數字	9	數字/9.png
+        數字	10	數字/10.png`;
+        const vocabList = bulkData.trim().split('\n').map(l => {
+            const [cat, name, path] = l.trim().split(/\s+/);
+            return { cat, name, path: `images/${path}`, id: 'v-'+Math.random().toString(36).substr(2,9) };
+        });
+        const categories = [...new Set(vocabList.map(v => v.cat))];
+
+        let state = {
+            view: 'SELECT',
+            selectedItems: [],
+            customCategory: "",
+            timerType: 'bomb', // bomb or car
+            duration: 15,
+            timeLeft: 15,
+            isPaused: false,
+            liveCount: 0,
+            scoredIds: []
+        };
+
+        const sounds = { star: new Audio('sounds/star.mp3'), bomb: new Audio('sounds/bomb.mp3'), win: new Audio('sounds/hooray.mp3') };
+
+        function updateView() {
+            const app = document.getElementById('app');
+            const hideText = !document.getElementById('textToggle').checked;
+            app.className = "mt-20 p-4 " + (hideText ? "hide-text" : "");
+
+            if (state.view === 'SELECT') renderSelection(app);
+            else if (state.view === 'PREP') renderPrep(app);
+            else if (state.view === 'TIMER_SETUP') renderTimerSetup(app);
+            else if (state.view === 'GAME') renderGame(app);
+            else if (state.view === 'SUMMARY') renderSummary(app);
+        }
+
+        function renderSelection(app) {
+            app.innerHTML = `
+                <div class="max-w-6xl mx-auto">
+                    <div class="bg-white/80 p-6 rounded-3xl mb-8 shadow-lg flex flex-wrap gap-4 items-center justify-between border border-white">
+                        <input type="text" id="catInput" placeholder="輸入題目 (例如：紅色的水果)" class="flex-1 p-4 border-2 rounded-2xl text-xl font-bold" value="${state.customCategory}" onchange="state.customCategory=this.value">
+                        <button onclick="goPrep()" class="px-12 py-4 btn-orange btn-active rounded-full font-black text-2xl">下一步 (${state.selectedItems.length})</button>
+                    </div>
+                    <div id="grid-root"></div>
+                </div>
+            `;
+            let gridHtml = '';
+            categories.forEach(cat => {
+                gridHtml += `
+                <div class="mb-10">
+                    <div class="bg-sky-600 text-white px-8 py-3 rounded-t-3xl text-2xl font-black">${cat}</div>
+                    <div class="bg-white/40 p-6 rounded-b-3xl flex flex-wrap gap-6 border-x border-b border-sky-100">
+                        ${vocabList.filter(v => v.cat === cat).map(v => `
+                            <div onclick="toggleItem('${v.id}')" class="vocab-card cursor-pointer ${state.selectedItems.some(s=>s.id===v.id)?'selected-card':''}">
+                                <img src="${v.path}" class="w-full h-auto rounded-lg">
+                                <p class="mt-2 font-bold">${v.name}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+            });
+            document.getElementById('grid-root').innerHTML = gridHtml;
+        }
+
+        function renderPrep(app) {
+            app.innerHTML = `
+                <div class="max-w-5xl mx-auto flex flex-col items-center gap-10">
+                    <button onclick="state.view='SELECT';updateView()" class="self-start px-8 py-2 btn-gray btn-active rounded-xl font-bold">← 返回修改</button>
+                    <div class="prep-box w-full">
+                        <div class="prep-header">${state.customCategory || state.selectedItems[0]?.cat || '命名練習'}</div>
+                        <div class="p-10 flex flex-wrap gap-6 justify-center">
+                            ${state.selectedItems.map(s => `
+                                <div class="vocab-card"><img src="${s.path}" class="w-full"><p class="mt-2 font-bold">${s.name}</p></div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <button onclick="state.view='TIMER_SETUP';updateView()" class="px-24 py-6 btn-orange btn-active rounded-full font-black text-4xl shadow-2xl">準備開始 🚀</button>
+                </div>
+            `;
+        }
+
+        function renderTimerSetup(app) {
+            app.innerHTML = `
+                <div class="flex flex-col items-center py-10 gap-12">
+                    <h2 class="text-5xl font-black text-sky-900">選擇計時器模式</h2>
+                    <div class="flex gap-12">
+                        <div onclick="state.timerType='bomb';updateView()" class="w-56 h-56 rounded-[40px] cursor-pointer border-8 ${state.timerType==='bomb'?'border-orange-500 bg-orange-50':'border-white bg-white/50'} flex flex-col items-center justify-center transition-all">
+                            <span class="text-9xl">💣</span><span class="text-2xl font-black mt-2 text-orange-700">炸彈模式</span>
+                        </div>
+                        <div onclick="state.timerType='car';updateView()" class="w-56 h-56 rounded-[40px] cursor-pointer border-8 ${state.timerType==='car'?'border-blue-500 bg-blue-50':'border-white bg-white/50'} flex flex-col items-center justify-center transition-all">
+                            <span class="text-9xl">🏎️</span><span class="text-2xl font-black mt-2 text-blue-700">賽車模式</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        ${[10, 15, 20, 30, 60].map(s => `
+                            <button onclick="state.duration=${s};updateView()" class="w-28 py-4 rounded-2xl text-2xl font-bold ${state.duration===s?'btn-orange':'bg-white border-4 border-orange-100'}">${s}秒</button>
+                        `).join('')}
+                    </div>
+                    <button onclick="startGame()" class="px-40 py-8 btn-emerald btn-active rounded-full font-black text-5xl shadow-2xl">GO! 🏁</button>
+                </div>
+            `;
+        }
+
+        function renderGame(app) {
+            app.innerHTML = `
+                <div class="h-[80vh] flex flex-col items-center justify-between">
+                    <div class="w-full max-w-4xl flex flex-col items-center gap-2">
+                        <div class="w-full flex justify-between items-end px-4">
+                            <span class="text-5xl font-black text-white drop-shadow-md" id="timerText">${state.timeLeft}秒</span>
+                            <button onclick="togglePause()" id="pauseBtn" class="px-8 py-2 btn-blue btn-active rounded-full font-black text-xl">暫停 ⏸</button>
+                        </div>
+                        <div class="timer-container">
+                            <div class="endpoint-emoji left-[-15px]">${state.timerType==='bomb'?'🔥':''}</div>
+                            <div class="endpoint-emoji right-[-15px]">${state.timerType==='car'?'🏁':''}</div>
+                            <div class="timer-track">
+                                <div id="tFill" class="timer-fill ${state.timerType==='bomb'?'bomb-gradient':'car-gradient'}" style="width:100%"></div>
+                                <div id="tMover" class="mover-emoji" style="${state.timerType==='bomb'?'right:0%':'left:0%'}">${state.timerType==='bomb'?'💣':'🏎️'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h1 class="text-7xl font-black text-white drop-shadow-lg text-center">${state.customCategory || state.selectedItems[0]?.cat}</h1>
+
+                    <div class="flex flex-col items-center gap-8">
+                        <div onclick="tapStar()" class="big-star-btn">⭐</div>
+                        <div class="text-9xl font-black text-white drop-shadow-lg" id="liveCounter">0</div>
+                    </div>
+                    <div class="h-10"></div>
+                </div>
+            `;
+        }
+
+        function renderSummary(app) {
+            const finalCatName = state.customCategory || state.selectedItems[0]?.cat || "未命名";
+            app.innerHTML = `
+                <div id="reportCard" class="bg-white p-12 rounded-[50px] shadow-2xl max-w-6xl mx-auto border-[12px] border-sky-50">
+                    <div class="flex justify-between items-center border-b-8 border-sky-50 pb-10 mb-10">
+                        <div>
+                            <h2 class="text-6xl font-black text-sky-900">${finalCatName}</h2>
+                            <p class="text-2xl font-bold text-gray-400 mt-4">練習模式：擴展性命名 | 限時：${state.duration}秒</p>
+                        </div>
+                        <div class="bg-emerald-50 px-10 py-6 rounded-3xl border-4 border-emerald-100 text-center">
+                            <p class="text-2xl font-bold text-emerald-800">已命名</p>
+                            <span class="text-8xl font-black text-emerald-600" id="summaryCount">0</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-8 justify-center">
+                        ${state.selectedItems.map(i => `
+                            <div onclick="toggleScore('${i.id}')" id="sum-${i.id}" class="vocab-card summary-card">
+                                <img src="${i.path}" class="w-full rounded-lg">
+                                <p class="mt-3 text-xl font-bold">${i.name}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="flex justify-center mt-12 mb-20">
+                    <button onclick="location.reload()" class="px-20 py-5 btn-blue btn-active rounded-full font-black text-3xl">重新開始</button>
+                </div>
+            `;
+        }
+
+        // --- Core Logic ---
+
+        function toggleItem(id) {
+            const idx = state.selectedItems.findIndex(s => s.id === id);
+            if(idx > -1) state.selectedItems.splice(idx, 1);
+            else state.selectedItems.push(vocabList.find(v => v.id === id));
+            updateView();
+        }
+
+        function goPrep() {
+            if(state.selectedItems.length === 0) return alert('請先選擇圖片');
+            state.view = 'PREP'; updateView();
+        }
+
+        let timerInt;
+        function startGame() {
+            state.view = 'GAME';
+            state.timeLeft = state.duration;
+            state.liveCount = 0;
+            state.isPaused = false;
+            updateView();
+            
+            timerInt = setInterval(() => {
+                if(state.isPaused) return;
+                state.timeLeft -= 0.1;
+                if(state.timeLeft <= 0) {
+                    clearInterval(timerInt);
+                    state.timeLeft = 0;
+                    endGame();
+                }
+                updateTimerUI();
+            }, 100);
+        }
+
+        function updateTimerUI() {
+            const p = (state.timeLeft / state.duration) * 100;
+            const fill = document.getElementById('tFill');
+            const mover = document.getElementById('tMover');
+            const txt = document.getElementById('timerText');
+            
+            if(!fill || !mover) return;
+
+            txt.innerText = Math.ceil(state.timeLeft) + "秒";
+
+            if(state.timerType === 'bomb') {
+                fill.style.width = p + "%";
+                mover.style.right = (100 - p) + "%";
+            } else {
+                fill.style.width = (100 - p) + "%";
+                mover.style.left = (100 - p) + "%";
+            }
+        }
+
+        function togglePause() {
+            state.isPaused = !state.isPaused;
+            document.getElementById('pauseBtn').innerText = state.isPaused ? "繼續 ▶️" : "暫停 ⏸";
+        }
+
+        function tapStar() {
+            if(state.isPaused) return;
+            state.liveCount++;
+            document.getElementById('liveCounter').innerText = state.liveCount;
+            sounds.star.currentTime = 0; sounds.star.play();
+        }
+
+        function endGame() {
+            if(state.timerType === 'bomb') sounds.bomb.play();
+            else sounds.win.play();
+            
+            setTimeout(() => {
+                state.view = 'SUMMARY';
+                updateView();
+            }, 1500);
+        }
+
+        function toggleScore(id) {
+            const el = document.getElementById(`sum-${id}`);
+            const idx = state.scoredIds.indexOf(id);
+            if(idx > -1) {
+                state.scoredIds.splice(idx, 1);
+                el.classList.remove('scored');
+            } else {
+                state.scoredIds.push(id);
+                el.classList.add('scored');
+            }
+            document.getElementById('summaryCount').innerText = state.scoredIds.length;
+        }
+
+        async function exportResult() {
+            const target = document.getElementById('reportCard') || document.getElementById('app');
+            const canvas = await html2canvas(target, { scale: 2, useCORS: true });
+            const link = document.createElement('a');
+            link.download = '命名練習紀錄.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        updateView();
+    </script>
+</body>
+</html>
